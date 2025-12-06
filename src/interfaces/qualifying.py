@@ -467,7 +467,17 @@ class QualifyingReplay(arcade.Window):
                     14,
                     bold=(i == 0)
                 ).draw()
-        
+        else:
+            # Add "click a driver to view their qualifying lap" text in the center of the chart area
+
+            info_text = "Click a driver on the left to load their qualifying lap telemetry."
+            arcade.Text(
+                info_text,
+                self.width / 2, self.height / 2,
+                arcade.color.LIGHT_GRAY, 18,
+                anchor_x="center", anchor_y="center"
+            ).draw()
+
         self.leaderboard.draw(self)
         self.qualifying_segment_selector_modal.draw(self)
 
