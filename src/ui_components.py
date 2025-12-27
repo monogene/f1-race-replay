@@ -809,7 +809,8 @@ class ControlsPopupComponent(BaseComponent):
             "[1-4]  Set speed: 0.5x / 1x / 2x / 4x",
             "[R]    Restart",
             "[D]    Toggle DRS Zones",
-            "[B]    Toggle Progress Bar"
+            "[B]    Toggle Progress Bar",
+            "[L]    Toggle Legend"
         ]
         
         line_spacing = max(18, int(self.body_font_size + 8))

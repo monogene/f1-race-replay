@@ -55,7 +55,7 @@ class F1RaceReplayWindow(arcade.Window):
         self.driver_info_comp = DriverInfoComponent(left=20, width=300)
         self.controls_popup_comp = ControlsPopupComponent()
 
-        self.controls_popup_comp.set_size(340, 220) # width/height of the popup box
+        self.controls_popup_comp.set_size(340, 230) # width/height of the popup box
         self.controls_popup_comp.set_font_sizes(header_font_size=16, body_font_size=13) # adjust font sizes
 
 
@@ -497,6 +497,16 @@ class F1RaceReplayWindow(arcade.Window):
             self.race_controls_comp.flash_button('rewind')
         elif symbol == arcade.key.D:
             self.toggle_drs_zones = not self.toggle_drs_zones
+        elif symbol == arcade.key.L:
+            # Toggle Controls popup with 'L' key — show anchored to bottom-left with 20px margin
+            margin_x = 20
+            margin_y = 20
+            left_pos = float(margin_x)
+            top_pos = float(margin_y + self.controls_popup_comp.height)
+            if self.controls_popup_comp.visible:
+                self.controls_popup_comp.hide()
+            else:
+                self.controls_popup_comp.show_over(left_pos, top_pos)
         elif symbol == arcade.key.B:
             self.progress_bar_comp.toggle_visibility() # toggle progress bar visibility
 
