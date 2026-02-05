@@ -1,6 +1,7 @@
 import os
 import arcade
 import numpy as np
+from scipy.spatial import cKDTree
 from src.f1_data import FPS
 from src.ui_components import (
     LeaderboardComponent, 
@@ -149,6 +150,9 @@ class F1RaceReplayWindow(arcade.Window):
         self._ref_nx = -dy / norm
         self._ref_ny = dx / norm
 
+        # Build KD-Tree for fast closest-point lookup
+        self.track_tree = cKDTree(np.column_stack((self._ref_xs, self._ref_ys)))
+
         # Determine track winding using the shoelace formula to ensure normals point outwards.
         # A positive area indicates counter-clockwise winding (normals point Left=Inside, so we flip).
         # A negative area indicates clockwise winding (normals point Left=Outside, so we keep).
@@ -208,14 +212,13 @@ class F1RaceReplayWindow(arcade.Window):
         if self._ref_total_length == 0.0:
             return 0.0
 
-        # Vectorized nearest-point to dense polyline points (sufficient for our purposes)
-        dx = self._ref_xs - x
-        dy = self._ref_ys - y
-        d2 = dx * dx + dy * dy
-        idx = int(np.argmin(d2))
+        # Vectorized nearest-point lookup using KD-Tree (O(log N))
+        _, idx = self.track_tree.query([x, y])
+        idx = int(idx)
 
         # For a slightly better estimate, optionally project onto the adjacent segment
         if idx < len(self._ref_xs) - 1:
+
             x1, y1 = self._ref_xs[idx], self._ref_ys[idx]
             x2, y2 = self._ref_xs[idx+1], self._ref_ys[idx+1]
             vx, vy = x2 - x1, y2 - y1
@@ -416,13 +419,13 @@ class F1RaceReplayWindow(arcade.Window):
             is_selected = code in selected_drivers
             
             if self.show_driver_labels or is_selected:
-                # Find closest point index on reference track
-                r_dx = self._ref_xs - pos["x"]
-                r_dy = self._ref_ys - pos["y"]
-                idx = int(np.argmin(r_dx*r_dx + r_dy*r_dy))
+                # Find closest point index on reference track (Optimized KD-Tree)
+                _, idx = self.track_tree.query([pos["x"], pos["y"]])
+                idx = int(idx)
                 
                 # Get normal vector in world space
                 nx = self._ref_nx[idx]
+
                 ny = self._ref_ny[idx]
                 
                 # Rotate normal to screen space
